@@ -1,8 +1,8 @@
-# Heavy Rain Damage Prediction: R code and Python port
+# Heavy Rain Damage Prediction: Python port of the R code
 
 [한국어 문서](README_ko.md)
 
-This repository holds the R code of a technical manual for predicting heavy rain damage, and a Python port of it ([python/](python/)). For every district (si-gun-gu) hit by a heavy rain event, the code predicts the damage from rainfall, district statistics and past damage. It fits 18 models per region, picks the best one on the last year of data, and reports the range of the 18 predictions as an interval.
+This repository holds a Python port ([python/](python/)) of the R code of a technical manual for predicting heavy rain damage. The R code (`Modeling.R`, `Prediction.R`, `Sub code #1/`) has been removed from the current files; it is kept in the history at commit [4582c73](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657), and the R line numbers in this document link to it there. For every district (si-gun-gu) hit by a heavy rain event, the code predicts the damage from rainfall, district statistics and past damage. It fits 18 models per region, picks the best one on the last year of data, and reports the range of the 18 predictions as an interval.
 
 The original data are no longer available. The repository therefore includes a generator of **synthetic data** with the same files, columns and encoding ([python/make_synthetic_data.py](python/make_synthetic_data.py)). Every result in this document comes from that synthetic data and says nothing about real damage.
 
@@ -41,14 +41,6 @@ Technical-Manual-for-Heavy-rain-damage-prediction-technique/
 │   ├── predict.py                 prediction (Prediction.R)
 │   ├── requirements.txt
 │   └── train.py                   training and validation (Modeling.R)
-├── Sub code #1/                   R functions
-│   ├── clreg.R
-│   ├── cvfun.R
-│   ├── dvfun.R
-│   ├── pcfun.R
-│   └── xxfun.R
-├── Modeling.R                     R training and validation
-├── Prediction.R                   R prediction
 ├── README.md                      this document (English)
 └── README_ko.md                   Korean version
 ```
@@ -131,31 +123,33 @@ All files are CSV in EUC-KR. Tables with a name column (`sgg` or `sido`) have it
 
 ## 4. Walk-through of the R code
 
+The R files are no longer in the current files; the line numbers below link to them at commit [4582c73](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657).
+
 ### 4.1 Modeling.R
 
 | Lines | What happens |
 |:--|:--|
-| [16-32](Modeling.R#L16-L32) | load packages; `source()` the functions from `Rfun/` |
-| [36-49](Modeling.R#L36-L49) | read `tdat.csv`; add `ndate` (days) and `year`; `makedat()` joins the extra tables |
-| [53-61](Modeling.R#L53-L61) | keep events with y between its 36% and 100% quantiles ("Outlier elimination") |
-| [67-85](Modeling.R#L67-L85) | validation: `dev()` per region on all years but the last, `pred_out()` and `hval_out()` on the last year; `sido = T` only for region 1 |
-| [88-117](Modeling.R#L88-L117) | best model per region (`optm.rds`), `validation.txt`, `validation.pdf` |
-| [120-180](Modeling.R#L120-L180) | min-max interval over the 18 models (`pint_mm()`), `coverage.pdf`, `validation.csv` |
-| [185-193](Modeling.R#L185-L193) | refit `dev()` per region on all years; save `obj1.rds` ... `obj4.rds` |
+| [16-32](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Modeling.R#L16-L32) | load packages; `source()` the functions from `Rfun/` |
+| [36-49](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Modeling.R#L36-L49) | read `tdat.csv`; add `ndate` (days) and `year`; `makedat()` joins the extra tables |
+| [53-61](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Modeling.R#L53-L61) | keep events with y between its 36% and 100% quantiles ("Outlier elimination") |
+| [67-85](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Modeling.R#L67-L85) | validation: `dev()` per region on all years but the last, `pred_out()` and `hval_out()` on the last year; `sido = T` only for region 1 |
+| [88-117](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Modeling.R#L88-L117) | best model per region (`optm.rds`), `validation.txt`, `validation.pdf` |
+| [120-180](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Modeling.R#L120-L180) | min-max interval over the 18 models (`pint_mm()`), `coverage.pdf`, `validation.csv` |
+| [185-193](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Modeling.R#L185-L193) | refit `dev()` per region on all years; save `obj1.rds` ... `obj4.rds` |
 
 ### 4.2 Prediction.R
 
 | Lines | What happens |
 |:--|:--|
-| [31-44](Prediction.R#L31-L44) | read `idat.csv`, add the same features |
-| [49-53](Prediction.R#L49-L53) | load the four region models and `optm.rds` |
-| [57-72](Prediction.R#L57-L72) | `pred_out()` per region inside `tryCatch()` |
-| [73-89](Prediction.R#L73-L89) | per row: `pred_lwr` = minimum of the 18, `pred_upr` = maximum, `pred_fit` = best model |
-| [93-100](Prediction.R#L93-L100) | write `prediction.csv` |
+| [31-44](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Prediction.R#L31-L44) | read `idat.csv`, add the same features |
+| [49-53](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Prediction.R#L49-L53) | load the four region models and `optm.rds` |
+| [57-72](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Prediction.R#L57-L72) | `pred_out()` per region inside `tryCatch()` |
+| [73-89](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Prediction.R#L73-L89) | per row: `pred_lwr` = minimum of the 18, `pred_upr` = maximum, `pred_fit` = best model |
+| [93-100](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Prediction.R#L93-L100) | write `prediction.csv` |
 
 ### 4.3 Sub code #1/xxfun.R: `makedat()`
 
-[Lines 5-214](Sub%20code%20%231/xxfun.R#L5-L214). Joins the 14 tables with `merge(..., all.x = T)`; every table except `00_area` has `year + 1` first ([e.g. line 29](Sub%20code%20%231/xxfun.R#L29)). [Line 206](Sub%20code%20%231/xxfun.R#L206) replaces every missing value with 0, [lines 209-210](Sub%20code%20%231/xxfun.R#L209-L210) sort by district and start date.
+[Lines 5-214](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/xxfun.R#L5-L214). Joins the 14 tables with `merge(..., all.x = T)`; every table except `00_area` has `year + 1` first ([e.g. line 29](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/xxfun.R#L29)). [Line 206](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/xxfun.R#L206) replaces every missing value with 0, [lines 209-210](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/xxfun.R#L209-L210) sort by district and start date.
 
 ### 4.4 Sub code #1/pcfun.R
 
@@ -163,22 +157,22 @@ Defines `calc_pc1()` and `calc_pc2()`, which no other file calls.
 
 ### 4.5 Sub code #1/cvfun.R
 
-`cv.folds()` ([lines 5-7](Sub%20code%20%231/cvfun.R#L5-L7)) shuffles the rows and deals them into k folds. `cv_cm()` ([lines 11-42](Sub%20code%20%231/cvfun.R#L11-L42)) computes a confusion matrix; clreg only uses the threshold it is given back.
+`cv.folds()` ([lines 5-7](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/cvfun.R#L5-L7)) shuffles the rows and deals them into k folds. `cv_cm()` ([lines 11-42](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/cvfun.R#L11-L42)) computes a confusion matrix; clreg only uses the threshold it is given back.
 
 ### 4.6 Sub code #1/dvfun.R
 
-- **`dev()`** ([lines 4-582](Sub%20code%20%231/dvfun.R#L4-L582)): input groups ([11-41](Sub%20code%20%231/dvfun.R#L11-L41)); `preProcess(method = c("center", "scale", "zv", "nzv", "pca"), thresh = 0.9)` per group ([43-72](Sub%20code%20%231/dvfun.R#L43-L72)); the three input sets and their formulas for log(y) ([74-134](Sub%20code%20%231/dvfun.R#L74-L134)); 10-fold cross-validation ([137-142](Sub%20code%20%231/dvfun.R#L137-L142)); lm, glmnet, knn, rf, gbm ([150-391](Sub%20code%20%231/dvfun.R#L150-L391)); three clreg models ([394-537](Sub%20code%20%231/dvfun.R#L394-L537)).
-- **`pred_out()`** ([587-797](Sub%20code%20%231/dvfun.R#L587-L797)): applies the saved PCA and the 18 models, `exp()` of every log prediction, rows sorted by region, district, year and dates.
-- **`hval_out()`** ([802-879](Sub%20code%20%231/dvfun.R#L802-L879)): joins the predictions with y; RMSE, NRMSE (RMSE / range of y) and MAPE per model; best = smallest RMSE; bar chart.
-- **`pint_mm()`** ([884-1006](Sub%20code%20%231/dvfun.R#L884-L1006)): per validation event the minimum and maximum of the 18 predictions, how many observed values fall inside, two figures (raw and log scale).
+- **`dev()`** ([lines 4-582](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/dvfun.R#L4-L582)): input groups ([11-41](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/dvfun.R#L11-L41)); `preProcess(method = c("center", "scale", "zv", "nzv", "pca"), thresh = 0.9)` per group ([43-72](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/dvfun.R#L43-L72)); the three input sets and their formulas for log(y) ([74-134](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/dvfun.R#L74-L134)); 10-fold cross-validation ([137-142](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/dvfun.R#L137-L142)); lm, glmnet, knn, rf, gbm ([150-391](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/dvfun.R#L150-L391)); three clreg models ([394-537](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/dvfun.R#L394-L537)).
+- **`pred_out()`** ([587-797](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/dvfun.R#L587-L797)): applies the saved PCA and the 18 models, `exp()` of every log prediction, rows sorted by region, district, year and dates.
+- **`hval_out()`** ([802-879](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/dvfun.R#L802-L879)): joins the predictions with y; RMSE, NRMSE (RMSE / range of y) and MAPE per model; best = smallest RMSE; bar chart.
+- **`pint_mm()`** ([884-1006](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/dvfun.R#L884-L1006)): per validation event the minimum and maximum of the 18 predictions, how many observed values fall inside, two figures (raw and log scale).
 
 ### 4.7 Sub code #1/clreg.R
 
-- Damage cut-off candidates ([60-76](Sub%20code%20%231/clreg.R#L60-L76)): quantiles 0.10 to 0.90 by 0.05 of the training and validation y together; candidates that leave a group empty in the training data are dropped.
-- Probability cut-off per candidate ([81-299](Sub%20code%20%231/clreg.R#L81-L299)): 10-fold cross-validation on the training rows (`set.seed(i)`); in each fold, PCA on the fitting rows, a Firth logistic regression (`glm(..., method = "firthglm.fit")`) and `step()` between a formula without and with `area:tot`; the threshold is the point of the pooled ROC curve with the largest sensitivity + specificity.
-- Choice of the damage cut-off ([304-749](Sub%20code%20%231/clreg.R#L304-L749)): for each candidate, one log-linear regression per group (each with its own PCA and `step()`) and the logistic regression are fitted on the training rows, the validation rows are assigned to groups and predicted; the candidate with the smallest RMSE wins.
-- Refit ([754-1056](Sub%20code%20%231/clreg.R#L754-L1056)) on training and validation rows with the chosen cut-offs.
-- `predict.clreg()` ([1090-1238](Sub%20code%20%231/clreg.R#L1090-L1238)): logistic regression -> group -> that group's regression -> `exp()`.
+- Damage cut-off candidates ([60-76](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/clreg.R#L60-L76)): quantiles 0.10 to 0.90 by 0.05 of the training and validation y together; candidates that leave a group empty in the training data are dropped.
+- Probability cut-off per candidate ([81-299](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/clreg.R#L81-L299)): 10-fold cross-validation on the training rows (`set.seed(i)`); in each fold, PCA on the fitting rows, a Firth logistic regression (`glm(..., method = "firthglm.fit")`) and `step()` between a formula without and with `area:tot`; the threshold is the point of the pooled ROC curve with the largest sensitivity + specificity.
+- Choice of the damage cut-off ([304-749](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/clreg.R#L304-L749)): for each candidate, one log-linear regression per group (each with its own PCA and `step()`) and the logistic regression are fitted on the training rows, the validation rows are assigned to groups and predicted; the candidate with the smallest RMSE wins.
+- Refit ([754-1056](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/clreg.R#L754-L1056)) on training and validation rows with the chosen cut-offs.
+- `predict.clreg()` ([1090-1238](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/clreg.R#L1090-L1238)): logistic regression -> group -> that group's regression -> `exp()`.
 
 ## 5. Problems and quirks found in the R code
 
@@ -186,16 +180,16 @@ Defines `calc_pc1()` and `calc_pc2()`, which no other file calls.
 
 | No. | Problem | Where | Python port |
 |:--|:--|:--|:--|
-| 1 | The scripts load `Rfun/*.R`, but the files are in `Sub code #1/`; the data folders (`Dat_train/`, `Dat_extra/`, `Dat_input/`) and output folders (`Robj/`, `Output/`) are not in the repository, so the code does not run as it is | [Modeling.R 28-32](Modeling.R#L28-L32) | folders are command-line options |
-| 2 | If the input has no rows for one region, `Prediction.R` stops: `tryCatch()` returns `NULL`, and `apply(ptmp, 1, min)` then fails with "dim(X) must have a positive length"; no output file is written (checked by running it with region 4 left out) | [Prediction.R 57-89](Prediction.R#L57-L89) | the region is skipped with a message |
-| 3 | "Outlier elimination" removes the 36% smallest damages and nothing at the top, so the models never see small events and are likely to predict them too high | [Modeling.R 53-61](Modeling.R#L53-L61) | kept |
-| 4 | `sido_code` (province code) enters the region 1 models as a number, not as a category | [dvfun.R 11-15](Sub%20code%20%231/dvfun.R#L11-L15) | kept |
-| 5 | clreg's damage cut-offs are quantiles of training and validation y together, while the check that both groups are non-empty uses training quantiles only | [clreg.R 63-76](Sub%20code%20%231/clreg.R#L63-L76) | kept |
-| 6 | Missing values of the extra tables become 0, indistinguishable from a real 0 | [xxfun.R 206](Sub%20code%20%231/xxfun.R#L206) | kept |
-| 7 | knn measures distance on unscaled inputs, so large-valued columns (area, rainfall) decide the neighbours; in the R run of section 8, knn1, knn2 and knn3 gave identical predictions in every region | [dvfun.R 229-270](Sub%20code%20%231/dvfun.R#L229-L270) | kept |
-| 8 | Models are fitted to log(y) and turned back with `exp()` without a correction, so the predictions sit below the mean damage (closer to a median) | [dvfun.R 647-652](Sub%20code%20%231/dvfun.R#L647-L652) | kept |
-| 9 | `pcfun.R` is never used | [pcfun.R](Sub%20code%20%231/pcfun.R) | not ported |
-| 10 | Minor: when every row falls in group 1, `predict.clreg()` labels it group 0 ([line 1212](Sub%20code%20%231/clreg.R#L1212)); `hval_out()` computes R² and throws it away ([line 837](Sub%20code%20%231/dvfun.R#L837)); lm2 and lm3 use other cross-validation folds than the other models because `set.seed(1)` is not repeated before them (only the unused CV report of lm is affected) | | kept (no effect on results) |
+| 1 | The scripts load `Rfun/*.R`, but the files are in `Sub code #1/`; the data folders (`Dat_train/`, `Dat_extra/`, `Dat_input/`) and output folders (`Robj/`, `Output/`) are not in the repository, so the code does not run as it is | [Modeling.R 28-32](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Modeling.R#L28-L32) | folders are command-line options |
+| 2 | If the input has no rows for one region, `Prediction.R` stops: `tryCatch()` returns `NULL`, and `apply(ptmp, 1, min)` then fails with "dim(X) must have a positive length"; no output file is written (checked by running it with region 4 left out) | [Prediction.R 57-89](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Prediction.R#L57-L89) | the region is skipped with a message |
+| 3 | "Outlier elimination" removes the 36% smallest damages and nothing at the top, so the models never see small events and are likely to predict them too high | [Modeling.R 53-61](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Modeling.R#L53-L61) | kept |
+| 4 | `sido_code` (province code) enters the region 1 models as a number, not as a category | [dvfun.R 11-15](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/dvfun.R#L11-L15) | kept |
+| 5 | clreg's damage cut-offs are quantiles of training and validation y together, while the check that both groups are non-empty uses training quantiles only | [clreg.R 63-76](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/clreg.R#L63-L76) | kept |
+| 6 | Missing values of the extra tables become 0, indistinguishable from a real 0 | [xxfun.R 206](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/xxfun.R#L206) | kept |
+| 7 | knn measures distance on unscaled inputs, so large-valued columns (area, rainfall) decide the neighbours; in the R run of section 8, knn1, knn2 and knn3 gave identical predictions in every region | [dvfun.R 229-270](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/dvfun.R#L229-L270) | kept |
+| 8 | Models are fitted to log(y) and turned back with `exp()` without a correction, so the predictions sit below the mean damage (closer to a median) | [dvfun.R 647-652](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/dvfun.R#L647-L652) | kept |
+| 9 | `pcfun.R` is never used | [pcfun.R](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/pcfun.R) | not ported |
+| 10 | Minor: when every row falls in group 1, `predict.clreg()` labels it group 0 ([line 1212](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/clreg.R#L1212)); `hval_out()` computes R² and throws it away ([line 837](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/dvfun.R#L837)); lm2 and lm3 use other cross-validation folds than the other models because `set.seed(1)` is not repeated before them (only the unused CV report of lm is affected) | | kept (no effect on results) |
 
 **Quirks reproduced on purpose.** These are not errors but behaviour of the R packages that changes the numbers; the port copies them.
 
