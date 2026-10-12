@@ -2,7 +2,7 @@
 
 [English](README.md)
 
-이 저장소에는 호우 피해 예측 기술 매뉴얼의 R 코드를 옮긴 파이썬 버전([python/](python/))이 있습니다. R 코드(`Modeling.R`, `Prediction.R`, `Sub code #1/`)는 현재 파일에서는 지웠고 커밋 [4582c73](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657) 기록에 남아 있으며, 이 문서의 R 행 번호는 그 파일로 연결됩니다. 호우 사건이 지나간 시군구마다 강우, 시군구 통계, 과거 피해를 바탕으로 피해액을 예측합니다. 권역마다 모델 18개를 학습하고, 마지막 연도로 가장 좋은 모델을 고르며, 18개 예측값의 범위를 예측 구간으로 함께 냅니다.
+이 저장소에는 호우 피해 예측 기술 매뉴얼의 R 코드를 옮긴 파이썬 버전([python/](python/))이 있습니다. R 코드(`Modeling.R`, `Prediction.R`, `Sub code #1/`)는 현재 파일에서는 지웠고 커밋 [4582c73](https://github.com/sinkei9456/Heavy-Rain-Damage-Prediction/blob/4582c73ad2a5da9f4a91c63870243840b019e657) 기록에 남아 있으며, 이 문서의 R 행 번호는 그 파일로 연결됩니다. 호우 사건이 지나간 시군구마다 강우, 시군구 통계, 과거 피해를 바탕으로 피해액을 예측합니다. 권역마다 모델 18개를 학습하고, 마지막 연도로 가장 좋은 모델을 고르며, 18개 예측값의 범위를 예측 구간으로 함께 냅니다.
 
 원래 데이터는 더 이상 구할 수 없습니다. 그래서 파일 이름, 열 이름, 인코딩이 같은 **가짜(합성) 데이터** 생성기를 함께 넣었습니다([python/make_synthetic_data.py](python/make_synthetic_data.py)). 이 문서의 모든 결과는 합성 데이터에서 나온 것이며, 실제 피해에 대해서는 아무것도 말해 주지 않습니다.
 
@@ -21,7 +21,7 @@
 ## 1. 폴더 구성
 
 ```
-Technical-Manual-for-Heavy-rain-damage-prediction-technique/
+Heavy-Rain-Damage-Prediction/
 ├── python/
 │   ├── data/                      make_synthetic_data.py 가 만든 합성 데이터
 │   │   ├── Dat_extra/             00_area.csv ... 13_nDRZ.csv (외부 표 14개)
@@ -123,33 +123,33 @@ Dat_input/idat.csv  (새 사건)
 
 ## 4. R 코드 설명
 
-R 파일은 현재 파일에는 없습니다. 아래 행 번호는 커밋 [4582c73](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657) 의 파일로 연결됩니다.
+R 파일은 현재 파일에는 없습니다. 아래 행 번호는 커밋 [4582c73](https://github.com/sinkei9456/Heavy-Rain-Damage-Prediction/blob/4582c73ad2a5da9f4a91c63870243840b019e657) 의 파일로 연결됩니다.
 
 ### 4.1 Modeling.R
 
 | 행 | 하는 일 |
 |:--|:--|
-| [16-32](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Modeling.R#L16-L32) | 패키지를 불러오고 `Rfun/` 의 함수를 `source()` |
-| [36-49](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Modeling.R#L36-L49) | `tdat.csv` 를 읽고 `ndate`(일수), `year` 를 더한 뒤 `makedat()` 로 외부 표를 붙임 |
-| [53-61](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Modeling.R#L53-L61) | y 가 36 % 분위수와 100 % 분위수 사이인 사건만 남김("Outlier elimination") |
-| [67-85](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Modeling.R#L67-L85) | 검증: 마지막 연도를 뺀 해로 권역마다 `dev()`, 마지막 연도에 `pred_out()`, `hval_out()`. `sido = T` 는 권역 1 만 |
-| [88-117](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Modeling.R#L88-L117) | 권역별 최선 모델(`optm.rds`), `validation.txt`, `validation.pdf` |
-| [120-180](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Modeling.R#L120-L180) | 모델 18개의 최소–최대 예측 구간(`pint_mm()`), `coverage.pdf`, `validation.csv` |
-| [185-193](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Modeling.R#L185-L193) | 전체 연도로 권역마다 `dev()` 를 다시 해 `obj1.rds` ... `obj4.rds` 로 저장 |
+| [16-32](https://github.com/sinkei9456/Heavy-Rain-Damage-Prediction/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Modeling.R#L16-L32) | 패키지를 불러오고 `Rfun/` 의 함수를 `source()` |
+| [36-49](https://github.com/sinkei9456/Heavy-Rain-Damage-Prediction/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Modeling.R#L36-L49) | `tdat.csv` 를 읽고 `ndate`(일수), `year` 를 더한 뒤 `makedat()` 로 외부 표를 붙임 |
+| [53-61](https://github.com/sinkei9456/Heavy-Rain-Damage-Prediction/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Modeling.R#L53-L61) | y 가 36 % 분위수와 100 % 분위수 사이인 사건만 남김("Outlier elimination") |
+| [67-85](https://github.com/sinkei9456/Heavy-Rain-Damage-Prediction/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Modeling.R#L67-L85) | 검증: 마지막 연도를 뺀 해로 권역마다 `dev()`, 마지막 연도에 `pred_out()`, `hval_out()`. `sido = T` 는 권역 1 만 |
+| [88-117](https://github.com/sinkei9456/Heavy-Rain-Damage-Prediction/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Modeling.R#L88-L117) | 권역별 최선 모델(`optm.rds`), `validation.txt`, `validation.pdf` |
+| [120-180](https://github.com/sinkei9456/Heavy-Rain-Damage-Prediction/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Modeling.R#L120-L180) | 모델 18개의 최소–최대 예측 구간(`pint_mm()`), `coverage.pdf`, `validation.csv` |
+| [185-193](https://github.com/sinkei9456/Heavy-Rain-Damage-Prediction/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Modeling.R#L185-L193) | 전체 연도로 권역마다 `dev()` 를 다시 해 `obj1.rds` ... `obj4.rds` 로 저장 |
 
 ### 4.2 Prediction.R
 
 | 행 | 하는 일 |
 |:--|:--|
-| [31-44](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Prediction.R#L31-L44) | `idat.csv` 를 읽고 같은 입력을 만듦 |
-| [49-53](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Prediction.R#L49-L53) | 권역 모델 4개와 `optm.rds` 를 불러옴 |
-| [57-72](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Prediction.R#L57-L72) | 권역마다 `tryCatch()` 안에서 `pred_out()` |
-| [73-89](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Prediction.R#L73-L89) | 행마다 `pred_lwr` = 18개의 최솟값, `pred_upr` = 최댓값, `pred_fit` = 최선 모델 값 |
-| [93-100](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Prediction.R#L93-L100) | `prediction.csv` 저장 |
+| [31-44](https://github.com/sinkei9456/Heavy-Rain-Damage-Prediction/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Prediction.R#L31-L44) | `idat.csv` 를 읽고 같은 입력을 만듦 |
+| [49-53](https://github.com/sinkei9456/Heavy-Rain-Damage-Prediction/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Prediction.R#L49-L53) | 권역 모델 4개와 `optm.rds` 를 불러옴 |
+| [57-72](https://github.com/sinkei9456/Heavy-Rain-Damage-Prediction/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Prediction.R#L57-L72) | 권역마다 `tryCatch()` 안에서 `pred_out()` |
+| [73-89](https://github.com/sinkei9456/Heavy-Rain-Damage-Prediction/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Prediction.R#L73-L89) | 행마다 `pred_lwr` = 18개의 최솟값, `pred_upr` = 최댓값, `pred_fit` = 최선 모델 값 |
+| [93-100](https://github.com/sinkei9456/Heavy-Rain-Damage-Prediction/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Prediction.R#L93-L100) | `prediction.csv` 저장 |
 
 ### 4.3 Sub code #1/xxfun.R: `makedat()`
 
-[5–214행](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/xxfun.R#L5-L214). 표 14개를 `merge(..., all.x = T)` 로 붙입니다. `00_area` 를 뺀 표는 먼저 `year + 1` 을 합니다([예: 29행](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/xxfun.R#L29)). [206행](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/xxfun.R#L206)에서 모든 빈 값을 0으로 바꾸고, [209–210행](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/xxfun.R#L209-L210)에서 시군구와 시작일 순으로 정렬합니다.
+[5–214행](https://github.com/sinkei9456/Heavy-Rain-Damage-Prediction/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/xxfun.R#L5-L214). 표 14개를 `merge(..., all.x = T)` 로 붙입니다. `00_area` 를 뺀 표는 먼저 `year + 1` 을 합니다([예: 29행](https://github.com/sinkei9456/Heavy-Rain-Damage-Prediction/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/xxfun.R#L29)). [206행](https://github.com/sinkei9456/Heavy-Rain-Damage-Prediction/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/xxfun.R#L206)에서 모든 빈 값을 0으로 바꾸고, [209–210행](https://github.com/sinkei9456/Heavy-Rain-Damage-Prediction/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/xxfun.R#L209-L210)에서 시군구와 시작일 순으로 정렬합니다.
 
 ### 4.4 Sub code #1/pcfun.R
 
@@ -157,22 +157,22 @@ R 파일은 현재 파일에는 없습니다. 아래 행 번호는 커밋 [4582c
 
 ### 4.5 Sub code #1/cvfun.R
 
-`cv.folds()`([5–7행](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/cvfun.R#L5-L7))는 행을 섞어 k개 폴드에 차례로 나눕니다. `cv_cm()`([11–42행](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/cvfun.R#L11-L42))은 혼동 행렬을 계산하는데, clreg 는 여기서 넘겨준 기준값만 다시 받아 씁니다.
+`cv.folds()`([5–7행](https://github.com/sinkei9456/Heavy-Rain-Damage-Prediction/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/cvfun.R#L5-L7))는 행을 섞어 k개 폴드에 차례로 나눕니다. `cv_cm()`([11–42행](https://github.com/sinkei9456/Heavy-Rain-Damage-Prediction/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/cvfun.R#L11-L42))은 혼동 행렬을 계산하는데, clreg 는 여기서 넘겨준 기준값만 다시 받아 씁니다.
 
 ### 4.6 Sub code #1/dvfun.R
 
-- **`dev()`** ([4–582행](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/dvfun.R#L4-L582)): 입력 묶음([11–41](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/dvfun.R#L11-L41)), 묶음마다 `preProcess(method = c("center", "scale", "zv", "nzv", "pca"), thresh = 0.9)`([43–72](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/dvfun.R#L43-L72)), 입력 조합 3가지와 log(y) 회귀식([74–134](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/dvfun.R#L74-L134)), 10겹 교차검증([137–142](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/dvfun.R#L137-L142)), lm·glmnet·knn·rf·gbm([150–391](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/dvfun.R#L150-L391)), clreg 3개([394–537](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/dvfun.R#L394-L537)).
-- **`pred_out()`** ([587–797](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/dvfun.R#L587-L797)): 저장된 주성분 변환과 모델 18개를 적용하고, 로그 예측값마다 `exp()` 를 취해 권역·시군구·연도·날짜 순으로 정렬합니다.
-- **`hval_out()`** ([802–879](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/dvfun.R#L802-L879)): 예측값에 실제 y 를 붙여 모델마다 RMSE, NRMSE(RMSE ÷ y 의 범위), MAPE 를 계산하고, RMSE 가 가장 작은 모델을 최선으로 고르며 막대그림을 그립니다.
-- **`pint_mm()`** ([884–1006](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/dvfun.R#L884-L1006)): 검증 사건마다 예측값 18개의 최솟값과 최댓값, 실제값이 그 안에 드는 사건 수, 그림 2장(원래 단위, 로그 단위).
+- **`dev()`** ([4–582행](https://github.com/sinkei9456/Heavy-Rain-Damage-Prediction/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/dvfun.R#L4-L582)): 입력 묶음([11–41](https://github.com/sinkei9456/Heavy-Rain-Damage-Prediction/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/dvfun.R#L11-L41)), 묶음마다 `preProcess(method = c("center", "scale", "zv", "nzv", "pca"), thresh = 0.9)`([43–72](https://github.com/sinkei9456/Heavy-Rain-Damage-Prediction/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/dvfun.R#L43-L72)), 입력 조합 3가지와 log(y) 회귀식([74–134](https://github.com/sinkei9456/Heavy-Rain-Damage-Prediction/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/dvfun.R#L74-L134)), 10겹 교차검증([137–142](https://github.com/sinkei9456/Heavy-Rain-Damage-Prediction/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/dvfun.R#L137-L142)), lm·glmnet·knn·rf·gbm([150–391](https://github.com/sinkei9456/Heavy-Rain-Damage-Prediction/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/dvfun.R#L150-L391)), clreg 3개([394–537](https://github.com/sinkei9456/Heavy-Rain-Damage-Prediction/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/dvfun.R#L394-L537)).
+- **`pred_out()`** ([587–797](https://github.com/sinkei9456/Heavy-Rain-Damage-Prediction/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/dvfun.R#L587-L797)): 저장된 주성분 변환과 모델 18개를 적용하고, 로그 예측값마다 `exp()` 를 취해 권역·시군구·연도·날짜 순으로 정렬합니다.
+- **`hval_out()`** ([802–879](https://github.com/sinkei9456/Heavy-Rain-Damage-Prediction/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/dvfun.R#L802-L879)): 예측값에 실제 y 를 붙여 모델마다 RMSE, NRMSE(RMSE ÷ y 의 범위), MAPE 를 계산하고, RMSE 가 가장 작은 모델을 최선으로 고르며 막대그림을 그립니다.
+- **`pint_mm()`** ([884–1006](https://github.com/sinkei9456/Heavy-Rain-Damage-Prediction/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/dvfun.R#L884-L1006)): 검증 사건마다 예측값 18개의 최솟값과 최댓값, 실제값이 그 안에 드는 사건 수, 그림 2장(원래 단위, 로그 단위).
 
 ### 4.7 Sub code #1/clreg.R
 
-- 피해액 기준값 후보([60–76](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/clreg.R#L60-L76)): 학습과 검증 y 를 합친 분위수 0.10–0.90 (0.05 간격). 학습 데이터에서 한쪽 그룹이 비는 후보는 뺍니다.
-- 후보마다 판별 확률 기준값([81–299](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/clreg.R#L81-L299)): 학습 행으로 10겹 교차검증(`set.seed(i)`). 폴드마다 학습 행으로 주성분을 만들고, Firth 로지스틱 회귀(`glm(..., method = "firthglm.fit")`)와 `step()` 으로 `area:tot` 항을 넣을지 정합니다. 모은 ROC 곡선에서 민감도 + 특이도가 가장 큰 점의 기준값을 씁니다.
-- 피해액 기준값 고르기([304–749](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/clreg.R#L304-L749)): 후보마다 학습 행으로 그룹별 로그 선형회귀(각자 주성분과 `step()`)와 로지스틱 회귀를 학습하고, 검증 행을 그룹에 나눠 예측해 RMSE 가 가장 작은 후보를 고릅니다.
-- 다시 학습([754–1056](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/clreg.R#L754-L1056)): 고른 기준값으로 학습과 검증 행 전체를 다시 학습합니다.
-- `predict.clreg()` ([1090–1238](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/clreg.R#L1090-L1238)): 로지스틱 회귀로 그룹을 정하고, 그 그룹의 회귀로 예측한 뒤 `exp()` 를 취합니다.
+- 피해액 기준값 후보([60–76](https://github.com/sinkei9456/Heavy-Rain-Damage-Prediction/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/clreg.R#L60-L76)): 학습과 검증 y 를 합친 분위수 0.10–0.90 (0.05 간격). 학습 데이터에서 한쪽 그룹이 비는 후보는 뺍니다.
+- 후보마다 판별 확률 기준값([81–299](https://github.com/sinkei9456/Heavy-Rain-Damage-Prediction/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/clreg.R#L81-L299)): 학습 행으로 10겹 교차검증(`set.seed(i)`). 폴드마다 학습 행으로 주성분을 만들고, Firth 로지스틱 회귀(`glm(..., method = "firthglm.fit")`)와 `step()` 으로 `area:tot` 항을 넣을지 정합니다. 모은 ROC 곡선에서 민감도 + 특이도가 가장 큰 점의 기준값을 씁니다.
+- 피해액 기준값 고르기([304–749](https://github.com/sinkei9456/Heavy-Rain-Damage-Prediction/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/clreg.R#L304-L749)): 후보마다 학습 행으로 그룹별 로그 선형회귀(각자 주성분과 `step()`)와 로지스틱 회귀를 학습하고, 검증 행을 그룹에 나눠 예측해 RMSE 가 가장 작은 후보를 고릅니다.
+- 다시 학습([754–1056](https://github.com/sinkei9456/Heavy-Rain-Damage-Prediction/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/clreg.R#L754-L1056)): 고른 기준값으로 학습과 검증 행 전체를 다시 학습합니다.
+- `predict.clreg()` ([1090–1238](https://github.com/sinkei9456/Heavy-Rain-Damage-Prediction/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/clreg.R#L1090-L1238)): 로지스틱 회귀로 그룹을 정하고, 그 그룹의 회귀로 예측한 뒤 `exp()` 를 취합니다.
 
 ## 5. R 코드에서 찾은 문제점과 특이 동작
 
@@ -180,16 +180,16 @@ R 파일은 현재 파일에는 없습니다. 아래 행 번호는 커밋 [4582c
 
 | 번호 | 문제 | 위치 | 파이썬 버전 |
 |:--|:--|:--|:--|
-| 1 | 스크립트는 `Rfun/*.R` 을 불러오지만 파일은 `Sub code #1/` 에 있고, 데이터 폴더(`Dat_train/`, `Dat_extra/`, `Dat_input/`)와 출력 폴더(`Robj/`, `Output/`)도 저장소에 없어서 그대로는 실행되지 않음 | [Modeling.R 28-32](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Modeling.R#L28-L32) | 폴더를 실행 옵션으로 받음 |
-| 2 | 예측 입력에 행이 없는 권역이 하나라도 있으면 `Prediction.R` 이 멈춤. `tryCatch()` 가 `NULL` 을 돌려주고, 이어서 `apply(ptmp, 1, min)` 이 "dim(X)는 반드시 양의 값을 가지는 길이를 가져야 합니다" 오류를 냄. 출력 파일도 만들지 않음(권역 4 를 빼고 돌려서 확인) | [Prediction.R 57-89](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Prediction.R#L57-L89) | 그 권역을 건너뛰고 알림 |
-| 3 | "이상치 제거"가 실제로는 피해액 하위 36 %를 버리고 위쪽은 하나도 버리지 않음. 모델이 작은 사건을 보지 못하므로 작은 사건은 크게 예측할 가능성이 큼 | [Modeling.R 53-61](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Modeling.R#L53-L61) | 그대로 |
-| 4 | 권역 1 모델에서 `sido_code`(시도 코드)를 범주가 아니라 크기가 있는 숫자로 넣음 | [dvfun.R 11-15](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/dvfun.R#L11-L15) | 그대로 |
-| 5 | clreg 피해액 기준값은 학습과 검증 y 를 합친 분위수인데, 두 그룹이 모두 있는지 확인할 때는 학습 데이터 분위수만 씀 | [clreg.R 63-76](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/clreg.R#L63-L76) | 그대로 |
-| 6 | 외부 표의 빈 값을 0으로 채워서 실제 0과 구별할 수 없음 | [xxfun.R 206](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/xxfun.R#L206) | 그대로 |
-| 7 | knn 이 표준화 없이 거리를 재서, 값이 큰 열(면적, 강우)이 이웃을 정함. 8장의 R 실행에서 knn1, knn2, knn3 의 예측이 모든 권역에서 똑같았음 | [dvfun.R 229-270](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/dvfun.R#L229-L270) | 그대로 |
-| 8 | log(y) 로 학습하고 `exp()` 로 되돌릴 때 보정이 없어서, 예측값이 평균 피해보다 작게(중앙값에 가깝게) 나옴 | [dvfun.R 647-652](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/dvfun.R#L647-L652) | 그대로 |
-| 9 | `pcfun.R` 은 쓰이지 않음 | [pcfun.R](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/pcfun.R) | 옮기지 않음 |
-| 10 | 사소한 것: 모든 행이 그룹 1 일 때 `predict.clreg()` 가 그룹을 0으로 적음([1212행](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/clreg.R#L1212)). `hval_out()` 이 R² 를 계산하고 버림([837행](https://github.com/sinkei9456/Technical-Manual-for-Heavy-rain-damage-prediction-technique/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/dvfun.R#L837)). lm2, lm3 앞에서는 `set.seed(1)` 을 다시 하지 않아 다른 모델과 교차검증 폴드가 다름(쓰이지 않는 lm 교차검증 점수에만 영향) | | 그대로 (결과에 영향 없음) |
+| 1 | 스크립트는 `Rfun/*.R` 을 불러오지만 파일은 `Sub code #1/` 에 있고, 데이터 폴더(`Dat_train/`, `Dat_extra/`, `Dat_input/`)와 출력 폴더(`Robj/`, `Output/`)도 저장소에 없어서 그대로는 실행되지 않음 | [Modeling.R 28-32](https://github.com/sinkei9456/Heavy-Rain-Damage-Prediction/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Modeling.R#L28-L32) | 폴더를 실행 옵션으로 받음 |
+| 2 | 예측 입력에 행이 없는 권역이 하나라도 있으면 `Prediction.R` 이 멈춤. `tryCatch()` 가 `NULL` 을 돌려주고, 이어서 `apply(ptmp, 1, min)` 이 "dim(X)는 반드시 양의 값을 가지는 길이를 가져야 합니다" 오류를 냄. 출력 파일도 만들지 않음(권역 4 를 빼고 돌려서 확인) | [Prediction.R 57-89](https://github.com/sinkei9456/Heavy-Rain-Damage-Prediction/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Prediction.R#L57-L89) | 그 권역을 건너뛰고 알림 |
+| 3 | "이상치 제거"가 실제로는 피해액 하위 36 %를 버리고 위쪽은 하나도 버리지 않음. 모델이 작은 사건을 보지 못하므로 작은 사건은 크게 예측할 가능성이 큼 | [Modeling.R 53-61](https://github.com/sinkei9456/Heavy-Rain-Damage-Prediction/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Modeling.R#L53-L61) | 그대로 |
+| 4 | 권역 1 모델에서 `sido_code`(시도 코드)를 범주가 아니라 크기가 있는 숫자로 넣음 | [dvfun.R 11-15](https://github.com/sinkei9456/Heavy-Rain-Damage-Prediction/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/dvfun.R#L11-L15) | 그대로 |
+| 5 | clreg 피해액 기준값은 학습과 검증 y 를 합친 분위수인데, 두 그룹이 모두 있는지 확인할 때는 학습 데이터 분위수만 씀 | [clreg.R 63-76](https://github.com/sinkei9456/Heavy-Rain-Damage-Prediction/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/clreg.R#L63-L76) | 그대로 |
+| 6 | 외부 표의 빈 값을 0으로 채워서 실제 0과 구별할 수 없음 | [xxfun.R 206](https://github.com/sinkei9456/Heavy-Rain-Damage-Prediction/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/xxfun.R#L206) | 그대로 |
+| 7 | knn 이 표준화 없이 거리를 재서, 값이 큰 열(면적, 강우)이 이웃을 정함. 8장의 R 실행에서 knn1, knn2, knn3 의 예측이 모든 권역에서 똑같았음 | [dvfun.R 229-270](https://github.com/sinkei9456/Heavy-Rain-Damage-Prediction/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/dvfun.R#L229-L270) | 그대로 |
+| 8 | log(y) 로 학습하고 `exp()` 로 되돌릴 때 보정이 없어서, 예측값이 평균 피해보다 작게(중앙값에 가깝게) 나옴 | [dvfun.R 647-652](https://github.com/sinkei9456/Heavy-Rain-Damage-Prediction/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/dvfun.R#L647-L652) | 그대로 |
+| 9 | `pcfun.R` 은 쓰이지 않음 | [pcfun.R](https://github.com/sinkei9456/Heavy-Rain-Damage-Prediction/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/pcfun.R) | 옮기지 않음 |
+| 10 | 사소한 것: 모든 행이 그룹 1 일 때 `predict.clreg()` 가 그룹을 0으로 적음([1212행](https://github.com/sinkei9456/Heavy-Rain-Damage-Prediction/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/clreg.R#L1212)). `hval_out()` 이 R² 를 계산하고 버림([837행](https://github.com/sinkei9456/Heavy-Rain-Damage-Prediction/blob/4582c73ad2a5da9f4a91c63870243840b019e657/Sub%20code%20%231/dvfun.R#L837)). lm2, lm3 앞에서는 `set.seed(1)` 을 다시 하지 않아 다른 모델과 교차검증 폴드가 다름(쓰이지 않는 lm 교차검증 점수에만 영향) | | 그대로 (결과에 영향 없음) |
 
 **일부러 그대로 옮긴 특이 동작.** 오류는 아니지만 R 패키지의 동작 방식이 숫자를 바꾸므로, 파이썬 버전도 똑같이 했습니다.
 
